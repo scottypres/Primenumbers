@@ -29,18 +29,17 @@ export default function handler(req, res) {
       }
     }
 
-    // Stream counts in batches (no need to send actual prime values)
+    // Stream count updates every ~1 second
     let count = 0;
-    const batchSize = 1000;
-    let batchCount = 0;
+    let lastReport = Date.now();
 
     for (let i = 2; i <= upper && count < target; i++) {
       if (sieve[i] === 0) {
         count++;
-        batchCount++;
-        if (batchCount >= batchSize) {
+        const now = Date.now();
+        if (now - lastReport >= 1000) {
           res.write(`data: ${JSON.stringify({ count, done: false })}\n\n`);
-          batchCount = 0;
+          lastReport = now;
         }
       }
     }

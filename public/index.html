@@ -375,6 +375,8 @@
           else { upper = Math.ceil(limit * (Math.log(limit) + Math.log(Math.log(limit)))) + 100; }
           upper = Math.max(upper, 100);
 
+          self.postMessage({ count: 0, done: false, phase: 'Sieving...' });
+
           const sieve = new Uint8Array(upper + 1);
           sieve[0] = 1; sieve[1] = 1;
           for (let i = 2; i * i <= upper; i++) {
@@ -383,17 +385,18 @@
             }
           }
 
+          self.postMessage({ count: 0, done: false, phase: 'Counting...' });
+
           let count = 0;
-          const batchSize = 500;
-          let batch = 0;
+          let lastReport = Date.now();
 
           for (let i = 2; i <= upper && count < limit; i++) {
             if (sieve[i] === 0) {
               count++;
-              batch++;
-              if (batch >= batchSize) {
+              const now = Date.now();
+              if (now - lastReport >= 1000) {
                 self.postMessage({ count: count, done: false });
-                batch = 0;
+                lastReport = now;
               }
             }
           }
