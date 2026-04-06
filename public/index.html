@@ -319,30 +319,68 @@
       panels.classList.toggle('single', showServer !== showLocal);
     }
 
-    function appendDigits(container, primeNum, index) {
-      const str = primeNum.toString();
-      if (container.childElementCount > 0) {
-        const sep = document.createElement('span');
-        sep.className = 'separator';
-        sep.textContent = ',';
-        container.appendChild(sep);
+    // Buffered rendering: queue primes per container, flush via rAF
+    const renderQueues = new Map();
+    const renderScheduled = new Map();
+
+    function queuePrime(container, primeNum) {
+      if (!renderQueues.has(container)) renderQueues.set(container, []);
+      renderQueues.get(container).push(primeNum);
+
+      if (!renderScheduled.get(container)) {
+        renderScheduled.set(container, true);
+        requestAnimationFrame(() => flushRender(container));
+      }
+    }
+
+    function flushRender(container) {
+      renderScheduled.set(container, false);
+      const queue = renderQueues.get(container);
+      if (!queue || queue.length === 0) return;
+
+      const primes = queue.splice(0, queue.length);
+      const frag = document.createDocumentFragment();
+      const animateCount = 3; // only animate last N primes for performance
+      const animateStart = Math.max(0, primes.length - animateCount);
+
+      for (let p = 0; p < primes.length; p++) {
+        const str = primes[p].toString();
+        const shouldAnimate = p >= animateStart;
+
+        if (container.childElementCount > 0 || frag.childNodes.length > 0) {
+          const sep = document.createElement('span');
+          sep.className = 'separator';
+          sep.textContent = ',';
+          frag.appendChild(sep);
+        }
+
+        const span = document.createElement('span');
+        span.className = 'prime-num';
+
+        if (shouldAnimate) {
+          for (let i = 0; i < str.length; i++) {
+            const digit = document.createElement('span');
+            digit.className = 'digit';
+            digit.textContent = str[i];
+            digit.style.animationDelay = `${i * 30}ms`;
+            span.appendChild(digit);
+          }
+        } else {
+          span.textContent = str;
+          span.style.color = '#00f5a0';
+        }
+
+        frag.appendChild(span);
       }
 
-      const span = document.createElement('span');
-      span.className = 'prime-num';
-
-      for (let i = 0; i < str.length; i++) {
-        const digit = document.createElement('span');
-        digit.className = 'digit';
-        digit.textContent = str[i];
-        digit.style.animationDelay = `${i * 30}ms`;
-        span.appendChild(digit);
-      }
-
-      container.appendChild(span);
-
-      // Auto-scroll
+      container.appendChild(frag);
       container.scrollTop = container.scrollHeight;
+
+      // If more queued while we were rendering, schedule again
+      if (renderQueues.get(container) && renderQueues.get(container).length > 0) {
+        renderScheduled.set(container, true);
+        requestAnimationFrame(() => flushRender(container));
+      }
     }
 
     function updateStats(prefix, count, startTime) {
@@ -399,7 +437,7 @@
 
             if (data.primes) {
               for (const p of data.primes) {
-                appendDigits(display, p, count);
+                queuePrime(display, p);
                 count++;
               }
               updateStats('server', count, startTime);
@@ -435,31 +473,34 @@
       const code = `
         self.onmessage = function(e) {
           const limit = e.data.limit;
-          let count = 0;
-          let n = 2;
-          const batch = [];
-          const batchSize = 50;
 
-          function isPrime(num) {
-            if (num < 2) return false;
-            if (num < 4) return true;
-            if (num % 2 === 0 || num % 3 === 0) return false;
-            for (let i = 5; i * i <= num; i += 6) {
-              if (num % i === 0 || num % (i + 2) === 0) return false;
+          // Sieve of Eratosthenes
+          let upper;
+          if (limit < 6) { upper = 15; }
+          else { upper = Math.ceil(limit * (Math.log(limit) + Math.log(Math.log(limit)))) + 100; }
+          upper = Math.max(upper, 100);
+
+          const sieve = new Uint8Array(upper + 1);
+          sieve[0] = 1; sieve[1] = 1;
+          for (let i = 2; i * i <= upper; i++) {
+            if (sieve[i] === 0) {
+              for (let j = i * i; j <= upper; j += i) sieve[j] = 1;
             }
-            return true;
           }
 
-          while (count < limit && n < 2000000) {
-            if (isPrime(n)) {
-              batch.push(n);
+          let count = 0;
+          const batch = [];
+          const batchSize = 100;
+
+          for (let i = 2; i <= upper && count < limit; i++) {
+            if (sieve[i] === 0) {
+              batch.push(i);
               count++;
               if (batch.length >= batchSize) {
                 self.postMessage({ primes: batch.slice(), done: false });
                 batch.length = 0;
               }
             }
-            n++;
           }
 
           if (batch.length > 0) {
@@ -493,7 +534,7 @@
 
         if (data.primes && data.primes.length > 0) {
           for (const p of data.primes) {
-            appendDigits(display, p, count);
+            queuePrime(display, p);
             count++;
           }
           updateStats('local', count, startTime);
