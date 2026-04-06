@@ -370,38 +370,34 @@
         self.onmessage = function(e) {
           const limit = e.data.limit;
 
-          let upper;
-          if (limit < 6) { upper = 15; }
-          else { upper = Math.ceil(limit * (Math.log(limit) + Math.log(Math.log(limit)))) + 100; }
-          upper = Math.max(upper, 100);
-
-          self.postMessage({ count: 0, done: false, phase: 'Sieving...' });
-
-          const sieve = new Uint8Array(upper + 1);
-          sieve[0] = 1; sieve[1] = 1;
-          for (let i = 2; i * i <= upper; i++) {
-            if (sieve[i] === 0) {
-              for (let j = i * i; j <= upper; j += i) sieve[j] = 1;
+          function isPrime(n) {
+            if (n < 2) return false;
+            if (n < 4) return true;
+            if (n % 2 === 0 || n % 3 === 0) return false;
+            for (let i = 5; i * i <= n; i += 6) {
+              if (n % i === 0 || n % (i + 2) === 0) return false;
             }
+            return true;
           }
-
-          self.postMessage({ count: 0, done: false, phase: 'Counting...' });
 
           let count = 0;
+          let n = 2;
           let lastReport = Date.now();
 
-          for (let i = 2; i <= upper && count < limit; i++) {
-            if (sieve[i] === 0) {
+          while (count < limit) {
+            if (isPrime(n)) {
               count++;
-              const now = Date.now();
-              if (now - lastReport >= 1000) {
-                self.postMessage({ count: count, done: false });
-                lastReport = now;
-              }
+            }
+            n++;
+
+            const now = Date.now();
+            if (now - lastReport >= 1000) {
+              self.postMessage({ count, done: false });
+              lastReport = now;
             }
           }
 
-          self.postMessage({ count: count, done: true });
+          self.postMessage({ count, done: true });
         };
       `;
       return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));

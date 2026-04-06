@@ -11,44 +11,44 @@ export default function handler(req, res) {
 
   const limit = Math.max(parseInt(req.query.limit) || 10000, 1);
 
-  // Sieve of Eratosthenes — estimate upper bound via prime number theorem
-  function sieveCount(target) {
-    if (target < 6) return { total: Math.min(target, 4) }; // 2,3,5,7
-
-    let upper = Math.ceil(target * (Math.log(target) + Math.log(Math.log(target)))) + 100;
-    upper = Math.max(upper, 100);
-
-    const sieve = new Uint8Array(upper + 1);
-    sieve[0] = 1;
-    sieve[1] = 1;
-    for (let i = 2; i * i <= upper; i++) {
-      if (sieve[i] === 0) {
-        for (let j = i * i; j <= upper; j += i) {
-          sieve[j] = 1;
-        }
-      }
+  function isPrime(n) {
+    if (n < 2) return false;
+    if (n < 4) return true;
+    if (n % 2 === 0 || n % 3 === 0) return false;
+    for (let i = 5; i * i <= n; i += 6) {
+      if (n % i === 0 || n % (i + 2) === 0) return false;
     }
-
-    // Stream count updates every ~1 second
-    let count = 0;
-    let lastReport = Date.now();
-
-    for (let i = 2; i <= upper && count < target; i++) {
-      if (sieve[i] === 0) {
-        count++;
-        const now = Date.now();
-        if (now - lastReport >= 1000) {
-          res.write(`data: ${JSON.stringify({ count, done: false })}\n\n`);
-          lastReport = now;
-        }
-      }
-    }
-
-    return count;
+    return true;
   }
 
-  const total = sieveCount(limit);
+  let count = 0;
+  let n = 2;
+  let lastReport = Date.now();
 
-  res.write(`data: ${JSON.stringify({ count: total, done: true })}\n\n`);
-  res.end();
+  function compute() {
+    const batchEnd = count + 500;
+    while (count < limit) {
+      if (isPrime(n)) {
+        count++;
+      }
+      n++;
+
+      if (count >= batchEnd) break;
+    }
+
+    const now = Date.now();
+    if (now - lastReport >= 1000 || count >= limit) {
+      res.write(`data: ${JSON.stringify({ count, done: false })}\n\n`);
+      lastReport = now;
+    }
+
+    if (count >= limit) {
+      res.write(`data: ${JSON.stringify({ count, done: true })}\n\n`);
+      res.end();
+    } else {
+      setImmediate(compute);
+    }
+  }
+
+  compute();
 }
