@@ -10,6 +10,7 @@ export default function handler(req, res) {
   }
 
   const limit = Math.max(parseInt(req.query.limit) || 10000, 1);
+  const mode = req.query.mode === 'twins' ? 'twins' : 'primes';
 
   function isPrime(n) {
     if (n < 2) return false;
@@ -23,13 +24,21 @@ export default function handler(req, res) {
 
   let count = 0;
   let n = 2;
+  let prevPrime = 0;
   let lastReport = Date.now();
 
   function compute() {
     const batchEnd = count + 500;
     while (count < limit) {
       if (isPrime(n)) {
-        count++;
+        if (mode === 'twins') {
+          if (n - prevPrime === 2) {
+            count++;
+          }
+          prevPrime = n;
+        } else {
+          count++;
+        }
       }
       n++;
 

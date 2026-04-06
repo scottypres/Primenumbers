@@ -38,6 +38,7 @@
       gap: 20px;
       padding: 10px 20px 20px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .settings label { color: #888; font-size: 0.8rem; }
@@ -53,6 +54,32 @@
       font-size: 0.85rem;
     }
 
+    .mode-toggle {
+      display: flex;
+      gap: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+
+    .mode-toggle button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 0;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #1a1a2e;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .mode-toggle button.active {
+      background: linear-gradient(135deg, #00f5a0, #00d9f5);
+      color: #0a0a0f;
+    }
+
     .controls {
       display: flex;
       justify-content: center;
@@ -61,7 +88,7 @@
       flex-wrap: wrap;
     }
 
-    button {
+    button.btn {
       padding: 14px 32px;
       border: none;
       border-radius: 8px;
@@ -72,7 +99,7 @@
       transition: all 0.2s;
     }
 
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-server { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
     .btn-server:hover:not(:disabled) { box-shadow: 0 0 25px rgba(102, 126, 234, 0.5); }
     .btn-local { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
@@ -167,7 +194,7 @@
     @media (max-width: 768px) {
       .panels { flex-direction: column; align-items: center; }
       .header h1 { font-size: 1.5rem; }
-      button { padding: 12px 22px; font-size: 0.85rem; }
+      button.btn { padding: 12px 22px; font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -179,13 +206,17 @@
 
   <div class="settings">
     <label>Count: <input type="number" id="limitInput" value="10000" min="1"></label>
+    <div class="mode-toggle">
+      <button class="active" onclick="setMode('primes', this)">Primes</button>
+      <button onclick="setMode('twins', this)">Twin Primes</button>
+    </div>
   </div>
 
   <div class="controls">
-    <button class="btn-server" onclick="startServer()">Server (Vercel)</button>
-    <button class="btn-local" onclick="startLocal()">Browser (Local)</button>
-    <button class="btn-both" onclick="startBoth()">Both (Race!)</button>
-    <button class="btn-stop" onclick="stopAll()">Stop</button>
+    <button class="btn btn-server" onclick="startServer()">Server (Vercel)</button>
+    <button class="btn btn-local" onclick="startLocal()">Browser (Local)</button>
+    <button class="btn btn-both" onclick="startBoth()">Both (Race!)</button>
+    <button class="btn btn-stop" onclick="stopAll()">Stop</button>
   </div>
 
   <div class="panels" id="panels">
@@ -196,11 +227,11 @@
         <div class="stat-value time" id="serverTime">0.000s</div>
       </div>
       <div class="stat-row">
-        <div class="stat-label">Primes Found</div>
+        <div class="stat-label" id="serverCountLabel">Primes Found</div>
         <div class="stat-value count" id="serverCount">0</div>
       </div>
       <div class="stat-row">
-        <div class="stat-label">Primes / Second</div>
+        <div class="stat-label" id="serverRateLabel">Primes / Second</div>
         <div class="stat-value rate" id="serverRate">0</div>
       </div>
       <div class="stat-row">
@@ -216,11 +247,11 @@
         <div class="stat-value time" id="localTime">0.000s</div>
       </div>
       <div class="stat-row">
-        <div class="stat-label">Primes Found</div>
+        <div class="stat-label" id="localCountLabel">Primes Found</div>
         <div class="stat-value count" id="localCount">0</div>
       </div>
       <div class="stat-row">
-        <div class="stat-label">Primes / Second</div>
+        <div class="stat-label" id="localRateLabel">Primes / Second</div>
         <div class="stat-value rate" id="localRate">0</div>
       </div>
       <div class="stat-row">
@@ -239,6 +270,18 @@
     let localTimer = null;
     let serverStart = 0;
     let localStart = 0;
+    let currentMode = 'primes';
+
+    function setMode(mode, btn) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-toggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const label = mode === 'twins' ? 'Twin Primes' : 'Primes';
+      document.getElementById('serverCountLabel').textContent = label + ' Found';
+      document.getElementById('localCountLabel').textContent = label + ' Found';
+      document.getElementById('serverRateLabel').textContent = label + ' / Second';
+      document.getElementById('localRateLabel').textContent = label + ' / Second';
+    }
 
     function getLimit() {
       return Math.max(parseInt(document.getElementById('limitInput').value) || 10000, 1);
@@ -265,7 +308,7 @@
       const timerId = setInterval(() => {
         const elapsed = performance.now() - startTime;
         document.getElementById(`${prefix}Time`).textContent = formatTime(elapsed);
-      }, 16); // ~60fps update
+      }, 16);
 
       if (prefix === 'server') serverTimer = timerId;
       else localTimer = timerId;
@@ -315,7 +358,7 @@
       serverAbort = new AbortController();
 
       try {
-        const response = await fetch(`/api/primes?limit=${limit}`, {
+        const response = await fetch(`/api/primes?limit=${limit}&mode=${currentMode}`, {
           signal: serverAbort.signal
         });
 
@@ -364,11 +407,12 @@
       serverRunning = false;
     }
 
-    // ---- LOCAL (Web Worker with Sieve) ----
+    // ---- LOCAL (Web Worker) ----
     function createWorkerBlob() {
       const code = `
         self.onmessage = function(e) {
           const limit = e.data.limit;
+          const mode = e.data.mode;
 
           function isPrime(n) {
             if (n < 2) return false;
@@ -384,16 +428,33 @@
           let n = 2;
           let lastReport = Date.now();
 
-          while (count < limit) {
-            if (isPrime(n)) {
-              count++;
+          if (mode === 'twins') {
+            let prevPrime = 0;
+            while (count < limit) {
+              if (isPrime(n)) {
+                if (n - prevPrime === 2) {
+                  count++;
+                }
+                prevPrime = n;
+              }
+              n++;
+              const now = Date.now();
+              if (now - lastReport >= 1000) {
+                self.postMessage({ count, done: false });
+                lastReport = now;
+              }
             }
-            n++;
-
-            const now = Date.now();
-            if (now - lastReport >= 1000) {
-              self.postMessage({ count, done: false });
-              lastReport = now;
+          } else {
+            while (count < limit) {
+              if (isPrime(n)) {
+                count++;
+              }
+              n++;
+              const now = Date.now();
+              if (now - lastReport >= 1000) {
+                self.postMessage({ count, done: false });
+                lastReport = now;
+              }
             }
           }
 
@@ -430,7 +491,7 @@
         }
       };
 
-      localWorker.postMessage({ limit });
+      localWorker.postMessage({ limit, mode: currentMode });
     }
 
     function stopLocal() {
