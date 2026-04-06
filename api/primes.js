@@ -9,19 +9,16 @@ export default function handler(req, res) {
     return;
   }
 
-  const limit = Math.min(parseInt(req.query.limit) || 10000, 100000);
+  const limit = Math.min(parseInt(req.query.limit) || 10000, 10000000);
 
-  // Sieve of Eratosthenes for speed — estimate upper bound using prime number theorem
-  function sievePrimes(count) {
-    if (count < 6) {
-      const small = [2, 3, 5, 7, 11, 13];
-      return small.slice(0, count);
-    }
-    // Upper bound: p_n < n * (ln(n) + ln(ln(n))) for n >= 6
-    let upper = Math.ceil(count * (Math.log(count) + Math.log(Math.log(count)))) + 100;
+  // Sieve of Eratosthenes — estimate upper bound via prime number theorem
+  function sieveCount(target) {
+    if (target < 6) return { total: Math.min(target, 4) }; // 2,3,5,7
+
+    let upper = Math.ceil(target * (Math.log(target) + Math.log(Math.log(target)))) + 100;
     upper = Math.max(upper, 100);
 
-    const sieve = new Uint8Array(upper + 1); // 0 = prime, 1 = composite
+    const sieve = new Uint8Array(upper + 1);
     sieve[0] = 1;
     sieve[1] = 1;
     for (let i = 2; i * i <= upper; i++) {
@@ -32,22 +29,27 @@ export default function handler(req, res) {
       }
     }
 
-    const primes = [];
-    for (let i = 2; i <= upper && primes.length < count; i++) {
-      if (sieve[i] === 0) primes.push(i);
+    // Stream counts in batches (no need to send actual prime values)
+    let count = 0;
+    const batchSize = 1000;
+    let batchCount = 0;
+
+    for (let i = 2; i <= upper && count < target; i++) {
+      if (sieve[i] === 0) {
+        count++;
+        batchCount++;
+        if (batchCount >= batchSize) {
+          res.write(`data: ${JSON.stringify({ count, done: false })}\n\n`);
+          batchCount = 0;
+        }
+      }
     }
-    return primes;
+
+    return count;
   }
 
-  const allPrimes = sievePrimes(limit);
+  const total = sieveCount(limit);
 
-  // Stream in batches
-  const batchSize = 100;
-  for (let i = 0; i < allPrimes.length; i += batchSize) {
-    const batch = allPrimes.slice(i, i + batchSize);
-    res.write(`data: ${JSON.stringify({ primes: batch, done: false })}\n\n`);
-  }
-
-  res.write(`data: ${JSON.stringify({ primes: [], done: true, total: allPrimes.length })}\n\n`);
+  res.write(`data: ${JSON.stringify({ count: total, done: true })}\n\n`);
   res.end();
 }

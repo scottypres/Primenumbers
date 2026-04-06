@@ -12,12 +12,14 @@
       background: #0a0a0f;
       color: #e0e0e0;
       min-height: 100vh;
-      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .header {
       text-align: center;
-      padding: 30px 20px 20px;
+      padding: 40px 20px 20px;
     }
 
     .header h1 {
@@ -28,85 +30,17 @@
       margin-bottom: 8px;
     }
 
-    .header p {
-      color: #666;
-      font-size: 0.85rem;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      padding: 20px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-server {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-    }
-
-    .btn-server:hover:not(:disabled) {
-      box-shadow: 0 0 25px rgba(102, 126, 234, 0.5);
-    }
-
-    .btn-local {
-      background: linear-gradient(135deg, #f093fb, #f5576c);
-      color: white;
-    }
-
-    .btn-local:hover:not(:disabled) {
-      box-shadow: 0 0 25px rgba(245, 87, 108, 0.5);
-    }
-
-    .btn-both {
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      color: #0a0a0f;
-    }
-
-    .btn-both:hover:not(:disabled) {
-      box-shadow: 0 0 25px rgba(79, 172, 254, 0.5);
-    }
-
-    .btn-stop {
-      background: linear-gradient(135deg, #f44336, #d32f2f);
-      color: white;
-    }
-
-    .btn-stop:hover:not(:disabled) {
-      box-shadow: 0 0 25px rgba(244, 67, 54, 0.5);
-    }
+    .header p { color: #666; font-size: 0.85rem; }
 
     .settings {
       display: flex;
       justify-content: center;
       gap: 20px;
-      padding: 0 20px 15px;
+      padding: 10px 20px 20px;
       align-items: center;
     }
 
-    .settings label {
-      color: #888;
-      font-size: 0.8rem;
-    }
+    .settings label { color: #888; font-size: 0.8rem; }
 
     .settings input {
       background: #1a1a2e;
@@ -114,111 +48,84 @@
       color: #e0e0e0;
       padding: 6px 12px;
       border-radius: 6px;
-      width: 100px;
+      width: 120px;
       font-family: inherit;
       font-size: 0.85rem;
     }
 
-    .panels {
+    .controls {
       display: flex;
+      justify-content: center;
       gap: 12px;
-      padding: 0 20px 20px;
-      min-height: 60vh;
+      padding: 0 20px 30px;
+      flex-wrap: wrap;
     }
 
-    .panels.single .panel { flex: 1; }
-    .panels.dual .panel { flex: 1; }
+    button {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-server { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .btn-server:hover:not(:disabled) { box-shadow: 0 0 25px rgba(102, 126, 234, 0.5); }
+    .btn-local { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+    .btn-local:hover:not(:disabled) { box-shadow: 0 0 25px rgba(245, 87, 108, 0.5); }
+    .btn-both { background: linear-gradient(135deg, #4facfe, #00f2fe); color: #0a0a0f; }
+    .btn-both:hover:not(:disabled) { box-shadow: 0 0 25px rgba(79, 172, 254, 0.5); }
+    .btn-stop { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; }
+    .btn-stop:hover:not(:disabled) { box-shadow: 0 0 25px rgba(244, 67, 54, 0.5); }
+
+    .panels {
+      display: flex;
+      gap: 20px;
+      padding: 0 20px;
+      width: 100%;
+      max-width: 900px;
+      justify-content: center;
+    }
 
     .panel {
       background: #12121a;
       border: 1px solid #1e1e2e;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      border-radius: 16px;
+      padding: 30px;
+      flex: 1;
+      max-width: 420px;
       display: none;
     }
 
-    .panel.active { display: flex; }
+    .panel.active { display: block; }
 
-    .panel-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid #1e1e2e;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .panel-title {
-      font-size: 0.8rem;
+    .panel-label {
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .panel-server .panel-title { color: #667eea; }
-    .panel-local .panel-title { color: #f5576c; }
-
-    .panel-stats {
-      font-size: 0.75rem;
-      color: #555;
-    }
-
-    .panel-stats span {
-      margin-left: 12px;
-    }
-
-    .prime-display {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      font-size: 0.85rem;
-      line-height: 1.8;
-      word-wrap: break-word;
-    }
-
-    .prime-display::-webkit-scrollbar { width: 6px; }
-    .prime-display::-webkit-scrollbar-track { background: transparent; }
-    .prime-display::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-
-    .prime-num {
-      display: inline;
-      margin-right: 2px;
-    }
-
-    .digit {
-      display: inline-block;
-      opacity: 0;
-      animation: digitAppear 0.15s ease-out forwards;
-      color: #00f5a0;
-    }
-
-    .separator {
-      color: #333;
-      margin: 0 4px;
-    }
-
-    @keyframes digitAppear {
-      from { opacity: 0; transform: translateY(-8px) scale(0.5); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .status-bar {
-      padding: 8px 16px;
-      border-top: 1px solid #1e1e2e;
-      font-size: 0.7rem;
-      color: #444;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
       display: flex;
-      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
     }
 
-    .running-indicator {
-      display: inline-block;
+    .panel-server .panel-label { color: #667eea; }
+    .panel-local .panel-label { color: #f5576c; }
+
+    .indicator {
       width: 8px;
       height: 8px;
       border-radius: 50%;
+      background: #333;
+    }
+
+    .indicator.running {
       background: #00f5a0;
-      margin-right: 6px;
       animation: pulse 1s infinite;
     }
 
@@ -227,31 +134,51 @@
       50% { opacity: 0.3; }
     }
 
-    .idle-indicator {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #444;
-      margin-right: 6px;
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 14px 0;
+      border-bottom: 1px solid #1a1a2e;
     }
 
+    .stat-row:last-child { border-bottom: none; }
+
+    .stat-label {
+      color: #555;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #e0e0e0;
+    }
+
+    .stat-value.time { color: #00f5a0; }
+    .stat-value.count { color: #4facfe; }
+    .stat-value.rate { color: #f5a623; }
+    .stat-value.status-done { color: #00f5a0; }
+    .stat-value.status-running { color: #f5a623; }
+    .stat-value.status-idle { color: #555; }
+
     @media (max-width: 768px) {
-      .panels { flex-direction: column; }
+      .panels { flex-direction: column; align-items: center; }
       .header h1 { font-size: 1.5rem; }
-      .controls { gap: 8px; }
-      button { padding: 10px 18px; font-size: 0.8rem; }
+      button { padding: 12px 22px; font-size: 0.85rem; }
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Prime Number Calculator</h1>
-    <p>Digit-by-digit prime discovery &mdash; server, browser, or both</p>
+    <p>Server vs. Browser vs. Both &mdash; pure speed</p>
   </div>
 
   <div class="settings">
-    <label>Count: <input type="number" id="limitInput" value="500" min="10" max="100000"></label>
+    <label>Count: <input type="number" id="limitInput" value="10000" min="10" max="10000000"></label>
   </div>
 
   <div class="controls">
@@ -263,34 +190,42 @@
 
   <div class="panels" id="panels">
     <div class="panel panel-server" id="serverPanel">
-      <div class="panel-header">
-        <div class="panel-title"><span id="serverIndicator" class="idle-indicator"></span>Server</div>
-        <div class="panel-stats">
-          <span id="serverCount">0 primes</span>
-          <span id="serverTime">0ms</span>
-          <span id="serverRate">0 p/s</span>
-        </div>
+      <div class="panel-label"><div class="indicator" id="serverIndicator"></div> Server</div>
+      <div class="stat-row">
+        <div class="stat-label">Stopwatch</div>
+        <div class="stat-value time" id="serverTime">0.000s</div>
       </div>
-      <div class="prime-display" id="serverDisplay"></div>
-      <div class="status-bar">
-        <span id="serverStatus">Idle</span>
-        <span id="serverLast"></span>
+      <div class="stat-row">
+        <div class="stat-label">Primes Found</div>
+        <div class="stat-value count" id="serverCount">0</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Primes / Second</div>
+        <div class="stat-value rate" id="serverRate">0</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Status</div>
+        <div class="stat-value status-idle" id="serverStatus">Idle</div>
       </div>
     </div>
 
     <div class="panel panel-local" id="localPanel">
-      <div class="panel-header">
-        <div class="panel-title"><span id="localIndicator" class="idle-indicator"></span>Browser</div>
-        <div class="panel-stats">
-          <span id="localCount">0 primes</span>
-          <span id="localTime">0ms</span>
-          <span id="localRate">0 p/s</span>
-        </div>
+      <div class="panel-label"><div class="indicator" id="localIndicator"></div> Browser</div>
+      <div class="stat-row">
+        <div class="stat-label">Stopwatch</div>
+        <div class="stat-value time" id="localTime">0.000s</div>
       </div>
-      <div class="prime-display" id="localDisplay"></div>
-      <div class="status-bar">
-        <span id="localStatus">Idle</span>
-        <span id="localLast"></span>
+      <div class="stat-row">
+        <div class="stat-label">Primes Found</div>
+        <div class="stat-value count" id="localCount">0</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Primes / Second</div>
+        <div class="stat-value rate" id="localRate">0</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-label">Status</div>
+        <div class="stat-value status-idle" id="localStatus">Idle</div>
       </div>
     </div>
   </div>
@@ -300,118 +235,83 @@
     let localWorker = null;
     let serverRunning = false;
     let localRunning = false;
+    let serverTimer = null;
+    let localTimer = null;
+    let serverStart = 0;
+    let localStart = 0;
 
     function getLimit() {
-      return Math.min(Math.max(parseInt(document.getElementById('limitInput').value) || 500, 10), 100000);
+      return Math.min(Math.max(parseInt(document.getElementById('limitInput').value) || 10000, 10), 10000000);
     }
 
-    function updatePanelLayout() {
-      const panels = document.getElementById('panels');
-      const sp = document.getElementById('serverPanel');
-      const lp = document.getElementById('localPanel');
-
-      const showServer = serverRunning || sp.classList.contains('has-results');
-      const showLocal = localRunning || lp.classList.contains('has-results');
-
-      sp.classList.toggle('active', showServer);
-      lp.classList.toggle('active', showLocal);
-      panels.classList.toggle('dual', showServer && showLocal);
-      panels.classList.toggle('single', showServer !== showLocal);
+    function showPanel(id) {
+      document.getElementById(id).classList.add('active');
     }
 
-    // Buffered rendering: queue primes per container, flush via rAF
-    const renderQueues = new Map();
-    const renderScheduled = new Map();
-
-    function queuePrime(container, primeNum) {
-      if (!renderQueues.has(container)) renderQueues.set(container, []);
-      renderQueues.get(container).push(primeNum);
-
-      if (!renderScheduled.get(container)) {
-        renderScheduled.set(container, true);
-        requestAnimationFrame(() => flushRender(container));
-      }
+    function formatTime(ms) {
+      if (ms < 1000) return ms.toFixed(0) + 'ms';
+      return (ms / 1000).toFixed(3) + 's';
     }
 
-    function flushRender(container) {
-      renderScheduled.set(container, false);
-      const queue = renderQueues.get(container);
-      if (!queue || queue.length === 0) return;
+    function formatNumber(n) {
+      return n.toLocaleString();
+    }
 
-      const primes = queue.splice(0, queue.length);
-      const frag = document.createDocumentFragment();
-      const animateCount = 3; // only animate last N primes for performance
-      const animateStart = Math.max(0, primes.length - animateCount);
+    function startStopwatch(prefix) {
+      const startTime = performance.now();
+      if (prefix === 'server') serverStart = startTime;
+      else localStart = startTime;
 
-      for (let p = 0; p < primes.length; p++) {
-        const str = primes[p].toString();
-        const shouldAnimate = p >= animateStart;
+      const timerId = setInterval(() => {
+        const elapsed = performance.now() - startTime;
+        document.getElementById(`${prefix}Time`).textContent = formatTime(elapsed);
+      }, 16); // ~60fps update
 
-        if (container.childElementCount > 0 || frag.childNodes.length > 0) {
-          const sep = document.createElement('span');
-          sep.className = 'separator';
-          sep.textContent = ',';
-          frag.appendChild(sep);
-        }
+      if (prefix === 'server') serverTimer = timerId;
+      else localTimer = timerId;
+    }
 
-        const span = document.createElement('span');
-        span.className = 'prime-num';
-
-        if (shouldAnimate) {
-          for (let i = 0; i < str.length; i++) {
-            const digit = document.createElement('span');
-            digit.className = 'digit';
-            digit.textContent = str[i];
-            digit.style.animationDelay = `${i * 30}ms`;
-            span.appendChild(digit);
-          }
-        } else {
-          span.textContent = str;
-          span.style.color = '#00f5a0';
-        }
-
-        frag.appendChild(span);
-      }
-
-      container.appendChild(frag);
-      container.scrollTop = container.scrollHeight;
-
-      // If more queued while we were rendering, schedule again
-      if (renderQueues.get(container) && renderQueues.get(container).length > 0) {
-        renderScheduled.set(container, true);
-        requestAnimationFrame(() => flushRender(container));
-      }
+    function stopStopwatch(prefix) {
+      if (prefix === 'server' && serverTimer) { clearInterval(serverTimer); serverTimer = null; }
+      if (prefix === 'local' && localTimer) { clearInterval(localTimer); localTimer = null; }
     }
 
     function updateStats(prefix, count, startTime) {
       const elapsed = performance.now() - startTime;
-      document.getElementById(`${prefix}Count`).textContent = `${count} primes`;
-      document.getElementById(`${prefix}Time`).textContent = `${Math.round(elapsed)}ms`;
-      const rate = count > 0 ? Math.round(count / (elapsed / 1000)) : 0;
-      document.getElementById(`${prefix}Rate`).textContent = `${rate} p/s`;
+      document.getElementById(`${prefix}Count`).textContent = formatNumber(count);
+      const rate = elapsed > 0 ? Math.round(count / (elapsed / 1000)) : 0;
+      document.getElementById(`${prefix}Rate`).textContent = formatNumber(rate);
     }
 
-    function setRunning(prefix, running) {
-      const indicator = document.getElementById(`${prefix}Indicator`);
-      const status = document.getElementById(`${prefix}Status`);
-      indicator.className = running ? 'running-indicator' : 'idle-indicator';
-      status.textContent = running ? 'Computing...' : 'Done';
+    function setStatus(prefix, status) {
+      const el = document.getElementById(`${prefix}Status`);
+      el.textContent = status;
+      el.className = 'stat-value ' + (
+        status === 'Idle' ? 'status-idle' :
+        status.startsWith('Done') ? 'status-done' : 'status-running'
+      );
+      const ind = document.getElementById(`${prefix}Indicator`);
+      ind.className = status === 'Idle' || status.startsWith('Done') ? 'indicator' : 'indicator running';
     }
 
-    // ---- SERVER MODE (SSE) ----
+    function resetPanel(prefix) {
+      document.getElementById(`${prefix}Time`).textContent = '0.000s';
+      document.getElementById(`${prefix}Count`).textContent = '0';
+      document.getElementById(`${prefix}Rate`).textContent = '0';
+      setStatus(prefix, 'Idle');
+    }
+
+    // ---- SERVER (SSE) ----
     async function startServer() {
       stopServer();
-      const display = document.getElementById('serverDisplay');
-      display.innerHTML = '';
-      document.getElementById('serverPanel').classList.add('has-results');
+      resetPanel('server');
+      showPanel('serverPanel');
+      setStatus('server', 'Computing...');
       serverRunning = true;
-      updatePanelLayout();
-      setRunning('server', true);
+      startStopwatch('server');
 
       const limit = getLimit();
-      const startTime = performance.now();
       let count = 0;
-
       serverAbort = new AbortController();
 
       try {
@@ -435,46 +335,41 @@
             if (!line.startsWith('data: ')) continue;
             const data = JSON.parse(line.slice(6));
 
-            if (data.primes) {
-              for (const p of data.primes) {
-                queuePrime(display, p);
-                count++;
-              }
-              updateStats('server', count, startTime);
-              document.getElementById('serverLast').textContent = `latest: ${data.primes[data.primes.length - 1]}`;
+            if (data.count) {
+              count = data.count;
+              updateStats('server', count, serverStart);
             }
 
             if (data.done) {
+              stopStopwatch('server');
+              const elapsed = performance.now() - serverStart;
+              document.getElementById('serverTime').textContent = formatTime(elapsed);
+              updateStats('server', count, serverStart);
+              setStatus('server', `Done - ${formatTime(elapsed)}`);
               serverRunning = false;
-              setRunning('server', false);
-              updateStats('server', count, startTime);
-              document.getElementById('serverStatus').textContent = `Done - ${count} primes`;
-              updatePanelLayout();
             }
           }
         }
       } catch (e) {
         if (e.name !== 'AbortError') console.error('Server error:', e);
+        stopStopwatch('server');
         serverRunning = false;
-        setRunning('server', false);
-        updatePanelLayout();
+        setStatus('server', 'Error');
       }
     }
 
     function stopServer() {
       if (serverAbort) { serverAbort.abort(); serverAbort = null; }
+      stopStopwatch('server');
       serverRunning = false;
-      setRunning('server', false);
-      updatePanelLayout();
     }
 
-    // ---- LOCAL MODE (Web Worker) ----
+    // ---- LOCAL (Web Worker with Sieve) ----
     function createWorkerBlob() {
       const code = `
         self.onmessage = function(e) {
           const limit = e.data.limit;
 
-          // Sieve of Eratosthenes
           let upper;
           if (limit < 6) { upper = 15; }
           else { upper = Math.ceil(limit * (Math.log(limit) + Math.log(Math.log(limit)))) + 100; }
@@ -489,24 +384,21 @@
           }
 
           let count = 0;
-          const batch = [];
-          const batchSize = 100;
+          const batchSize = 500;
+          let batch = 0;
 
           for (let i = 2; i <= upper && count < limit; i++) {
             if (sieve[i] === 0) {
-              batch.push(i);
               count++;
-              if (batch.length >= batchSize) {
-                self.postMessage({ primes: batch.slice(), done: false });
-                batch.length = 0;
+              batch++;
+              if (batch >= batchSize) {
+                self.postMessage({ count: count, done: false });
+                batch = 0;
               }
             }
           }
 
-          if (batch.length > 0) {
-            self.postMessage({ primes: batch.slice(), done: false });
-          }
-          self.postMessage({ primes: [], done: true, total: count });
+          self.postMessage({ count: count, done: true });
         };
       `;
       return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
@@ -514,39 +406,28 @@
 
     function startLocal() {
       stopLocal();
-      const display = document.getElementById('localDisplay');
-      display.innerHTML = '';
-      document.getElementById('localPanel').classList.add('has-results');
+      resetPanel('local');
+      showPanel('localPanel');
+      setStatus('local', 'Computing...');
       localRunning = true;
-      updatePanelLayout();
-      setRunning('local', true);
+      startStopwatch('local');
 
       const limit = getLimit();
-      const startTime = performance.now();
-      let count = 0;
-
       const workerUrl = createWorkerBlob();
       localWorker = new Worker(workerUrl);
       URL.revokeObjectURL(workerUrl);
 
       localWorker.onmessage = function(e) {
         const data = e.data;
-
-        if (data.primes && data.primes.length > 0) {
-          for (const p of data.primes) {
-            queuePrime(display, p);
-            count++;
-          }
-          updateStats('local', count, startTime);
-          document.getElementById('localLast').textContent = `latest: ${data.primes[data.primes.length - 1]}`;
-        }
+        updateStats('local', data.count, localStart);
 
         if (data.done) {
+          stopStopwatch('local');
+          const elapsed = performance.now() - localStart;
+          document.getElementById('localTime').textContent = formatTime(elapsed);
+          updateStats('local', data.count, localStart);
+          setStatus('local', `Done - ${formatTime(elapsed)}`);
           localRunning = false;
-          setRunning('local', false);
-          updateStats('local', count, startTime);
-          document.getElementById('localStatus').textContent = `Done - ${count} primes`;
-          updatePanelLayout();
         }
       };
 
@@ -555,12 +436,11 @@
 
     function stopLocal() {
       if (localWorker) { localWorker.terminate(); localWorker = null; }
+      stopStopwatch('local');
       localRunning = false;
-      setRunning('local', false);
-      updatePanelLayout();
     }
 
-    // ---- BOTH MODE ----
+    // ---- BOTH ----
     function startBoth() {
       startServer();
       startLocal();
