@@ -9,7 +9,7 @@ export default function handler(req, res) {
     return;
   }
 
-  const limit = Math.min(parseInt(req.query.limit) || 10000, 10000000);
+  const limit = Math.max(parseInt(req.query.limit) || 10000, 1);
 
   // Sieve of Eratosthenes — estimate upper bound via prime number theorem
   function sieveCount(target) {

@@ -178,7 +178,7 @@
   </div>
 
   <div class="settings">
-    <label>Count: <input type="number" id="limitInput" value="10000" min="10" max="10000000"></label>
+    <label>Count: <input type="number" id="limitInput" value="10000" min="1"></label>
   </div>
 
   <div class="controls">
@@ -241,7 +241,7 @@
     let localStart = 0;
 
     function getLimit() {
-      return Math.min(Math.max(parseInt(document.getElementById('limitInput').value) || 10000, 10), 10000000);
+      return Math.max(parseInt(document.getElementById('limitInput').value) || 10000, 1);
     }
 
     function showPanel(id) {
